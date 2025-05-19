@@ -1,0 +1,22 @@
+// See https://containers.dev/ for full reference
+{
+    "name": "PHIDeIDPortal DevContainer",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "features": [
+        "ghcr.io/devcontainers/features/dotnet:1.0.2",
+        "ghcr.io/devcontainers/features/azure-cli:1.0.7"
+    ],
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "ms-dotnettools.csharp",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    },
+    "forwardPorts": [5000, 5001],
+    "postCreateCommand": "dotnet restore"
+}
