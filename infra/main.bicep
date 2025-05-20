@@ -1,0 +1,73 @@
+targetScope = 'subscription'
+
+@minLength(1)
+@maxLength(64)
+@description('Name of the environment that can be used as part of naming resource convention')
+param environmentName string
+
+@minLength(1)
+@description('Primary location for all resources')
+param location string
+
+@description('Id of the user or app to assign application roles')
+// param principalId string = ''
+param storageAccountName string = ''
+
+// Tags that should be applied to all resources.
+// 
+// Note that 'azd-service-name' tags should be applied separately to service host resources.
+// Example usage:
+//   tags: union(tags, { 'azd-service-name': <service name in azure.yaml> })
+var tags = {
+  'azd-env-name': environmentName
+}
+
+#disable-next-line no-unused-vars
+var abbrevs = loadJsonContent('./abbreviations.json')
+
+// Generate a unique token to be used in naming resources.
+// Remove linter suppression after using.
+#disable-next-line no-unused-vars
+var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+
+// Add resources to be provisioned below.
+// A full example that leverages azd bicep modules can be seen in the todo-python-mongo template:
+// https://github.com/Azure-Samples/todo-python-mongo/tree/main/infra
+
+// Organize resources in a resource group
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'rg-${environmentName}'
+  location: location
+  tags: tags
+}
+
+// Create a storage account
+module storage './core/storage/storage-account.bicep' = {
+  name: 'storage'
+  scope: rg
+  params: {
+    name: !empty(storageAccountName) ? storageAccountName : '${abbrevs.storageStorageAccounts}${resourceToken}'
+    location: location
+    tags: tags
+    containers: [
+      {
+        name: 'default'
+      }
+    ]
+  }
+}
+
+// Create a cognitive account
+module cognitiveAccount './core/ai/cognitiveAccount.bicep' = {
+  name: 'cognitiveAccount'
+  scope: rg
+  params: {
+    name: '${abbrevs.cognitiveServicesAccounts}${resourceToken}'
+    location: location
+    tags: tags
+  }
+}
+
+// output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
+// output AZURE_RESOURCE_CUSTOM_SKILLS_ID string = resources.outputs.AZURE_RESOURCE_CUSTOM_SKILLS_ID
+// output AZURE_RESOURCE_MVC_ID string = resources.outputs.AZURE_RESOURCE_MVC_ID

@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: phide-idportal
+metadata:
+    template: azd-init@1.16.1
+services:
+    custom-skills:
+        project: src/custom-skills
+        host: containerapp
+        language: dotnet
+    mvc:
+        project: src/web/ui/mvc
+        host: containerapp
+        language: dotnet
