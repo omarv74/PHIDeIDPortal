@@ -68,6 +68,18 @@ module cognitiveAccount './core/ai/cognitiveAccount.bicep' = {
   }
 }
 
+// Create a search service
+module searchService './core/ai/searchService.bicep' = {
+  name: 'searchService'
+  scope: rg
+  params: {
+    searchServiceName: '${abbrevs.searchSearchServices}${resourceToken}'
+    searchSkuName: 'standard'
+    location: location
+    tags: tags
+  }
+}
+
 // output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
 // output AZURE_RESOURCE_CUSTOM_SKILLS_ID string = resources.outputs.AZURE_RESOURCE_CUSTOM_SKILLS_ID
 // output AZURE_RESOURCE_MVC_ID string = resources.outputs.AZURE_RESOURCE_MVC_ID

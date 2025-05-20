@@ -11,6 +11,7 @@ resource cognitiveAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
 	}
 	kind: 'CognitiveServices'
 	properties: {
+		restore: true // Needed due to soft-delete with azd down, during development
 		apiProperties: {}
 		networkAcls: {
 			defaultAction: 'Allow'
