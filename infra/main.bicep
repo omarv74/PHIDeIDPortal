@@ -118,6 +118,28 @@ module cosmosSqlContainer './core/db/cosmosSqlContainer.bicep' = {
   }
 }
 
+// Create an app service plan
+module appServicePlan './core/db/appServicePlan.bicep' = {
+  name: 'appServicePlan'
+  scope: rg
+  params: {
+    name: 'plan1'
+    location: location
+    skuName: 'S1'
+  }
+}
+
+// Create a second app service plan
+module appServicePlan2 './core/db/appServicePlan.bicep' = {
+  name: 'appServicePlan2'
+  scope: rg
+  params: {
+    name: 'plan2'
+    location: location
+    skuName: 'S1'
+  }
+}
+
 // output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
 // output AZURE_RESOURCE_CUSTOM_SKILLS_ID string = resources.outputs.AZURE_RESOURCE_CUSTOM_SKILLS_ID
 // output AZURE_RESOURCE_MVC_ID string = resources.outputs.AZURE_RESOURCE_MVC_ID
