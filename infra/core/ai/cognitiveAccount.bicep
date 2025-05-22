@@ -11,7 +11,7 @@ resource cognitiveAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
 	}
 	kind: 'CognitiveServices'
 	properties: {
-		restore: true // Needed due to soft-delete with azd down, during development
+		// restore: true // Needed due to soft-delete with azd down, during development. But removed after day-later azd deploy with error: "CanNotRestoreAnActiveResource: Could not restore an active account"
 		apiProperties: {}
 		networkAcls: {
 			defaultAction: 'Allow'
