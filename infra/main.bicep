@@ -93,6 +93,31 @@ module cosmosDb './core/db/cosmosAccount.bicep' = {
   }
 }
 
+// Create a cosmos db SQL database
+module cosmosSqlDatabase './core/db/cosmosSqlDatabase.bicep' = {
+  name: 'cosmosSqlDatabase'
+  scope: rg
+  params: {
+    accountName: cosmosDb.outputs.cosmosDbName
+    location: location
+    databaseName: 'deid'
+    throughput: 1000
+  }
+}
+
+// Create a cosmos db SQL container
+module cosmosSqlContainer './core/db/cosmosSqlContainer.bicep' = {
+  name: 'cosmosSqlContainer'
+  scope: rg
+  params: {
+    accountName: cosmosDb.outputs.cosmosDbName
+    databaseName: 'deid'
+    containerName: 'metadata'
+    partitionKeyPath: '/Uri'
+    location: location
+  }
+}
+
 // output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
 // output AZURE_RESOURCE_CUSTOM_SKILLS_ID string = resources.outputs.AZURE_RESOURCE_CUSTOM_SKILLS_ID
 // output AZURE_RESOURCE_MVC_ID string = resources.outputs.AZURE_RESOURCE_MVC_ID
