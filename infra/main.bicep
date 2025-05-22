@@ -30,6 +30,8 @@ var abbrevs = loadJsonContent('./abbreviations.json')
 #disable-next-line no-unused-vars
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 
+var stAcctName = !empty(storageAccountName) ? storageAccountName : '${abbrevs.storageStorageAccounts}${resourceToken}'
+
 // Add resources to be provisioned below.
 // A full example that leverages azd bicep modules can be seen in the todo-python-mongo template:
 // https://github.com/Azure-Samples/todo-python-mongo/tree/main/infra
@@ -46,7 +48,7 @@ module storage './core/storage/storage-account.bicep' = {
   name: 'storage'
   scope: rg
   params: {
-    name: !empty(storageAccountName) ? storageAccountName : '${abbrevs.storageStorageAccounts}${resourceToken}'
+    name: stAcctName
     location: location
     tags: tags
     containers: [
@@ -137,6 +139,20 @@ module appServicePlan2 './core/db/appServicePlan.bicep' = {
     name: 'plan2'
     location: location
     skuName: 'S1'
+  }
+}
+
+// Create a function app
+module functionApp './core/db/functionApp.bicep' = {
+  name: 'functionApp'
+  scope: rg
+  params: {
+    functionAppName: '${abbrevs.webSitesFunctions}${resourceToken}'
+    osType: 'Windows'
+    runtime: 'dotnet'
+    storageAccountName: storage.outputs.storageAccountName
+    appServicePlanName: appServicePlan.outputs.appServicePlanName
+    location: location
   }
 }
 
