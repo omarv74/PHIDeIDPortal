@@ -143,18 +143,30 @@ module appServicePlan2 './core/db/appServicePlan.bicep' = {
 }
 
 // Create a function app
-module functionApp './core/db/functionApp.bicep' = {
+module functionApp './core/web/functionApp.bicep' = {
   name: 'functionApp'
   scope: rg
   params: {
     functionAppName: '${abbrevs.webSitesFunctions}${resourceToken}'
-    osType: 'Windows'
+    // osType: 'Windows'
     runtime: 'dotnet'
+    // roleAssignmentScope: storage //.outputs.storageObjectSymbolic
     storageAccountName: storage.outputs.storageAccountName
     appServicePlanName: appServicePlan.outputs.appServicePlanName
     location: location
   }
 }
+
+resource storageBlobContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
+  // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+    principalId: functionApp.outputs.functionAppPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 
 // output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
 // output AZURE_RESOURCE_CUSTOM_SKILLS_ID string = resources.outputs.AZURE_RESOURCE_CUSTOM_SKILLS_ID
