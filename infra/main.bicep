@@ -157,6 +157,18 @@ module functionApp './core/web/functionApp.bicep' = {
   }
 }
 
+// Create a web app
+module webApp './core/web/webApp.bicep' = {
+  name: 'webApp'
+  scope: rg
+  params: {
+    webAppName: '${abbrevs.webSitesAppService}${resourceToken}'
+    runtime: 'DOTNET|8.0'
+    appServicePlanName: appServicePlan2.outputs.appServicePlanName
+    location: location
+  }
+}
+
 resource storageBlobContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
   // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
