@@ -14,12 +14,21 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   properties: {
     serverFarmId: resourceId('Microsoft.Web/serverfarms', appServicePlanName)
     siteConfig: {
-      windowsFxVersion: 'DOTNET|8.0'
+      windowsFxVersion: runtime
     }
     httpsOnly: true
   }
   identity: {
     type: 'SystemAssigned'
+  }
+}
+
+resource publishingPolicy 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
+  name: '${webAppName}/scm'
+  // scope: rg
+  location: location
+  properties: {
+    allow: true
   }
 }
 

@@ -179,7 +179,6 @@ resource storageBlobContributorRoleAssignment 'Microsoft.Authorization/roleAssig
   }
 }
 
-
 // output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
 // output AZURE_RESOURCE_CUSTOM_SKILLS_ID string = resources.outputs.AZURE_RESOURCE_CUSTOM_SKILLS_ID
 // output AZURE_RESOURCE_MVC_ID string = resources.outputs.AZURE_RESOURCE_MVC_ID
