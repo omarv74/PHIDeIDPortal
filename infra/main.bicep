@@ -169,12 +169,21 @@ module webApp './core/web/webApp.bicep' = {
   }
 }
 
-resource storageBlobContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource storageBlobContributorRoleAssignmentFunctionApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
   // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
     principalId: functionApp.outputs.functionAppPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource storageBlobContributorRoleAssignmentWebApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(webApp.name, 'Storage Blob Data Contributor') 
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+    principalId: webApp.outputs.webAppPrincipalId
     principalType: 'ServicePrincipal'
   }
 }
