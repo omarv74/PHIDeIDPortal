@@ -169,6 +169,17 @@ module webApp './core/web/webApp.bicep' = {
   }
 }
 
+// Create an Azure OpenAI resource
+module aoai './core/ai/aoai.bicep' = {
+  name: 'aoai'
+  scope: rg
+  params: {
+    aoaiName: 'aoai-${resourceToken}'
+    location: location
+    tags: tags
+  }
+}
+
 resource storageBlobContributorRoleAssignmentFunctionApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
   // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
