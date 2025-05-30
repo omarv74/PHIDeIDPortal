@@ -43,6 +43,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     allowBlobPublicAccess: allowBlobPublicAccess
     allowCrossTenantReplication: allowCrossTenantReplication
     // allowSharedKeyAccess: allowSharedKeyAccess
+    // allowSharedKeyAccess: false // Per UMB installation instructions document
     // defaultToOAuthAuthentication: defaultToOAuthAuthentication
     dnsEndpointType: dnsEndpointType
     minimumTlsVersion: minimumTlsVersion
@@ -72,3 +73,4 @@ output id string = storage.id
 output storageAccountName string = storage.name
 output primaryEndpoints object = storage.properties.primaryEndpoints
 output blobEndpoint string = storage.properties.primaryEndpoints.blob
+// output storageSymbolicName resource 'Microsoft.Storage/storageAccounts@2023-01-01' = storage

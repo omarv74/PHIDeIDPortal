@@ -33,9 +33,6 @@ resource gpt4oMiniDeployment 'Microsoft.CognitiveServices/accounts/deployments@2
       version: '2024-07-18'
     }
   }
-  // dependsOn: [
-  //   aoai
-  // ]
 }
 
 output aoaiName string = aoai.name

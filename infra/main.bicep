@@ -50,56 +50,21 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-// // Create a storage account
-// module storageold './core/storage/storage-account.bicep' = {
-//   name: 'storage'
-//   scope: rg
-//   params: {
-//     name: stAcctName
-//     location: location
-//     tags: tags
-//     containers: [
-//       {
-//         name: 'default'
-//       }
-//     ]
-//   }
-// }
-
-// Create a Storage Account with a Blob Container
-resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: stAcctName
-  location: location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
+// Create a storage account
+module storage './core/storage/storage-account.bicep' = {
+  name: 'storage'
+  scope: rg
+  params: {
+    name: stAcctName
+    location: location
+    tags: tags
+    containers: [
+      {
+        name: 'default'
+      }
+    ]
   }
-  networkAcls: {
-    bypass: 'AzureServices'
-    defaultAction: 'Allow'
-    ipRules: []
-  }
-  // properties {
-  //   allowSharedKeyAccess: false // Per UMB installation instructions document
-  // }
-  tags: tags
-
-  resource blobServices 'blobServices' = {
-    name: 'default'
-    properties: {
-      // cors: {
-      //   corsRules: corsRules
-      // }
-      // deleteRetentionPolicy: deleteRetentionPolicy
-    }
 }
-
-
-// resource storageBlobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
-//   name: 'default'
-//   parent: storage
-//   properties: {}
-// }
 
 // Create a cognitive account
 module cognitiveAccount './core/ai/cognitiveAccount.bicep' = {
@@ -147,6 +112,9 @@ module cosmosSqlDatabase './core/db/cosmosSqlDatabase.bicep' = {
     databaseName: 'deid'
     throughput: 1000
   }
+  dependsOn: [
+    cosmosDb
+  ]
 }
 
 // Create a cosmos db SQL container
@@ -160,6 +128,9 @@ module cosmosSqlContainer './core/db/cosmosSqlContainer.bicep' = {
     partitionKeyPath: '/Uri'
     location: location
   }
+  dependsOn: [
+    cosmosSqlDatabase
+  ]
 }
 
 // Create an app service plan
@@ -193,8 +164,7 @@ module functionApp './core/web/functionApp.bicep' = {
     // osType: 'Windows'
     runtime: 'dotnet'
     // roleAssignmentScope: storage //.outputs.storageObjectSymbolic
-    // storageAccountName: storage.outputs.storageAccountName
-    storageAccountName: storage.name
+    storageAccountName: storage.outputs.storageAccountName
     appServicePlanName: appServicePlan.outputs.appServicePlanName
     location: location
   }
@@ -223,26 +193,26 @@ module aoai './core/ai/aoai.bicep' = {
   }
 }
 
-resource storageBlobContributorRoleAssignmentFunctionApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
-  // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
-  scope: storage
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
-    principalId: functionApp.outputs.functionAppPrincipalId
-    principalType: 'ServicePrincipal'
-  }
-}
+// resource storageBlobContributorRoleAssignmentFunctionApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//   name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
+//   // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
+//   scope: storage.outputs.storageSymbolicName
+//   properties: {
+//     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+//     principalId: functionApp.outputs.functionAppPrincipalId
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
-resource storageBlobContributorRoleAssignmentWebApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(webApp.name, 'Storage Blob Data Contributor') 
-  scope: storage
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
-    principalId: webApp.outputs.webAppPrincipalId
-    principalType: 'ServicePrincipal'
-  }
-}
+// resource storageBlobContributorRoleAssignmentWebApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//   name: guid(webApp.name, 'Storage Blob Data Contributor') 
+//   scope: storage.outputs.storageSymbolicName
+//   properties: {
+//     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+//     principalId: webApp.outputs.webAppPrincipalId
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
 // output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
 // output AZURE_RESOURCE_CUSTOM_SKILLS_ID string = resources.outputs.AZURE_RESOURCE_CUSTOM_SKILLS_ID
