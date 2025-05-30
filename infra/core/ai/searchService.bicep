@@ -11,6 +11,9 @@ param tags object = {}
 
 resource searchService 'Microsoft.Search/searchServices@2023-11-01' = {
   name: searchServiceName
+  identity: {
+    type: 'SystemAssigned'
+  }
   location: location
   sku: {
     name: searchSkuName
@@ -27,3 +30,4 @@ resource searchService 'Microsoft.Search/searchServices@2023-11-01' = {
 output searchServiceName string = searchService.name
 output searchServiceId string = searchService.id
 output searchServiceLocation string = searchService.location
+output searchServiceIdentity string = searchService.identity.principalId

@@ -11,6 +11,8 @@ resource aoai 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   kind: 'OpenAI'
   sku: {
     name: 'S0'
+    // name: 'Standard'
+    capacity: 1400
   }
   tags: tags
   properties: {
@@ -22,17 +24,18 @@ resource aoai 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
 }
 
 resource gpt4oMiniDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
-  name: '${aoai.name}/gpt4o-mini'
+  name: 'gpt-4o-mini'
+  parent: aoai
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o'
-      version: '2024-05-13'
+      name: 'gpt-4o-mini'
+      version: '2024-07-18'
     }
   }
-  dependsOn: [
-    aoai
-  ]
+  // dependsOn: [
+  //   aoai
+  // ]
 }
 
 output aoaiName string = aoai.name

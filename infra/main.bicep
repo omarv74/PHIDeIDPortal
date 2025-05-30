@@ -9,6 +9,9 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
+@description('Primary location for all resources')
+param DeploymentTimeStamp string = utcNow('d')
+
 @description('Id of the user or app to assign application roles')
 // param principalId string = ''
 param storageAccountName string = ''
@@ -20,6 +23,10 @@ param storageAccountName string = ''
 //   tags: union(tags, { 'azd-service-name': <service name in azure.yaml> })
 var tags = {
   'azd-env-name': environmentName
+  CreatedBy: 'CreatorUserName' // ToDo: Replace with actual creator name
+  CreatedDate: DeploymentTimeStamp // ToDo: Update format specifier if needed (https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#table-of-format-specifiers)
+  Project: 'SRE'
+  Purpose: 'File Transfer'
 }
 
 #disable-next-line no-unused-vars
@@ -43,21 +50,56 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-// Create a storage account
-module storage './core/storage/storage-account.bicep' = {
-  name: 'storage'
-  scope: rg
-  params: {
-    name: stAcctName
-    location: location
-    tags: tags
-    containers: [
-      {
-        name: 'default'
-      }
-    ]
+// // Create a storage account
+// module storageold './core/storage/storage-account.bicep' = {
+//   name: 'storage'
+//   scope: rg
+//   params: {
+//     name: stAcctName
+//     location: location
+//     tags: tags
+//     containers: [
+//       {
+//         name: 'default'
+//       }
+//     ]
+//   }
+// }
+
+// Create a Storage Account with a Blob Container
+resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: stAcctName
+  location: location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
   }
+  networkAcls: {
+    bypass: 'AzureServices'
+    defaultAction: 'Allow'
+    ipRules: []
+  }
+  // properties {
+  //   allowSharedKeyAccess: false // Per UMB installation instructions document
+  // }
+  tags: tags
+
+  resource blobServices 'blobServices' = {
+    name: 'default'
+    properties: {
+      // cors: {
+      //   corsRules: corsRules
+      // }
+      // deleteRetentionPolicy: deleteRetentionPolicy
+    }
 }
+
+
+// resource storageBlobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+//   name: 'default'
+//   parent: storage
+//   properties: {}
+// }
 
 // Create a cognitive account
 module cognitiveAccount './core/ai/cognitiveAccount.bicep' = {
@@ -151,7 +193,8 @@ module functionApp './core/web/functionApp.bicep' = {
     // osType: 'Windows'
     runtime: 'dotnet'
     // roleAssignmentScope: storage //.outputs.storageObjectSymbolic
-    storageAccountName: storage.outputs.storageAccountName
+    // storageAccountName: storage.outputs.storageAccountName
+    storageAccountName: storage.name
     appServicePlanName: appServicePlan.outputs.appServicePlanName
     location: location
   }
@@ -183,6 +226,7 @@ module aoai './core/ai/aoai.bicep' = {
 resource storageBlobContributorRoleAssignmentFunctionApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
   // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
+  scope: storage
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
     principalId: functionApp.outputs.functionAppPrincipalId
@@ -192,6 +236,7 @@ resource storageBlobContributorRoleAssignmentFunctionApp 'Microsoft.Authorizatio
 
 resource storageBlobContributorRoleAssignmentWebApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(webApp.name, 'Storage Blob Data Contributor') 
+  scope: storage
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
     principalId: webApp.outputs.webAppPrincipalId

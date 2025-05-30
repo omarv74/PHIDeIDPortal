@@ -3,15 +3,23 @@ param name string
 @description('Location for the Cosmos DB account')
 param location string = resourceGroup().location
 @description('Tags to apply to the Cosmos DB account')
+#disable-next-line no-unused-vars
 param tags object = {}
 @description('Cosmos DB API kind')
 param kind string = 'GlobalDocumentDB'
 
-resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
+resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2025-05-01-preview' = {
   name: name
   location: location
   kind: kind
-  tags: tags
+  identity: {
+    type: 'None'
+  }
+  tags: {
+    defaultExperience: '    Core (SQL)'
+    'hidden-workload-type': 'Production'
+    'hidden-cosmos-mmspecial': ''
+  }
   properties: {
     databaseAccountOfferType: 'Standard'
     locations: [
