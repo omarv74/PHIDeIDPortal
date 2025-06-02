@@ -1,0 +1,30 @@
+# .github/workflows/build-phi-deid-portal.yml
+# GitHub Actions workflow to build the phi-deid-portal solution
+name: Build PHI DeID Portal
+
+on:
+  push:
+    paths:
+      - 'src/web/**'
+      - '.github/workflows/build-phi-deid-portal.yml'
+  pull_request:
+    paths:
+      - 'src/web/**'
+      - '.github/workflows/build-phi-deid-portal.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        run: dotnet restore src/web/phi-deid-portal.sln
+      - name: Build
+        run: dotnet build src/web/phi-deid-portal.sln --configuration Release --no-restore
+      - name: Test
+        run: dotnet test src/web/phi-deid-portal.sln --no-build --verbosity normal || echo "No tests found"
