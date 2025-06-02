@@ -1,5 +1,5 @@
 # .github/workflows/build-phi-deid-portal.yml
-# GitHub Actions workflow to build the phi-deid-portal solution
+# GitHub Actions workflow to build the phi-deid-portal project
 name: Build PHI DeID Portal
 
 on:
@@ -23,8 +23,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Restore dependencies
-        run: dotnet restore src/web/phi-deid-portal.sln
+        run: dotnet restore src/web/ui/mvc/PhiDeidPortal.Ui.csproj
       - name: Build
-        run: dotnet build src/web/phi-deid-portal.sln --configuration Release --no-restore
+        run: dotnet build src/web/ui/mvc/PhiDeidPortal.Ui.csproj --configuration Release --no-restore
       - name: Test
-        run: dotnet test src/web/phi-deid-portal.sln --no-build --verbosity normal || echo "No tests found"
+        run: dotnet test src/web/ui/mvc/PhiDeidPortal.Ui.csproj --no-build --verbosity normal || echo "No tests found"
+      - name: Publish
+        run: dotnet publish src/web/ui/mvc/PhiDeidPortal.Ui.csproj --configuration Release --output ./publish_output
+      - name: Upload Published Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: phi-deid-portal-publish
+          path: ./publish_output

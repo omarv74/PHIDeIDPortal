@@ -1,5 +1,5 @@
 # .github/workflows/build-custom-skills.yml
-# GitHub Actions workflow to build the custom-skills solution
+# GitHub Actions workflow to build the custom-skills project
 name: Build Custom Skills
 
 on:
@@ -23,13 +23,13 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Restore dependencies
-        run: dotnet restore src/custom-skills/custom-skills.sln
+        run: dotnet restore src/custom-skills/custom-skills.csproj
       - name: Build
-        run: dotnet build src/custom-skills/custom-skills.sln --configuration Release --no-restore
+        run: dotnet build src/custom-skills/custom-skills.csproj --configuration Release --no-restore
       - name: Test
-        run: dotnet test src/custom-skills/custom-skills.sln --no-build --verbosity normal || echo "No tests found"
+        run: dotnet test src/custom-skills/custom-skills.csproj --no-build --verbosity normal || echo "No tests found"
       - name: Publish
-        run: dotnet publish src/custom-skills/custom-skills.sln --configuration Release --output ./publish_output
+        run: dotnet publish src/custom-skills/custom-skills.csproj --configuration Release --output ./publish_output
       - name: Upload Published Artifacts
         uses: actions/upload-artifact@v4
         with:
