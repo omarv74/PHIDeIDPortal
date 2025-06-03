@@ -26,16 +26,11 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
 resource publishingPolicy 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
   name: 'scm'
   parent: webApp
-  // scope: rg
-  // location: location
   properties: {
     allow: true
   }
-  // dependsOn: [
-  //   webApp
-  // ]
 }
 
 output webAppName string = webApp.name
 output webAppId string = webApp.id
-output webAppPrincipalId string = webApp.identity.principalId
+output principalId string = webApp.identity.principalId

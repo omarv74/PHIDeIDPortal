@@ -60,7 +60,7 @@ module storage './core/storage/storage-account.bicep' = {
     tags: tags
     containers: [
       {
-        name: 'default'
+        name: 'datamover-uploads'
       }
     ]
   }
@@ -112,9 +112,6 @@ module cosmosSqlDatabase './core/db/cosmosSqlDatabase.bicep' = {
     databaseName: 'deid'
     throughput: 1000
   }
-  dependsOn: [
-    cosmosDb
-  ]
 }
 
 // Create a cosmos db SQL container
@@ -134,22 +131,22 @@ module cosmosSqlContainer './core/db/cosmosSqlContainer.bicep' = {
 }
 
 // Create an app service plan
-module appServicePlan './core/db/appServicePlan.bicep' = {
-  name: 'appServicePlan'
+module appServicePlanFn './core/db/appServicePlan.bicep' = {
+  name: 'appServicePlanFn'
   scope: rg
   params: {
-    name: 'plan1'
+    name: '${abbrevs.webServerFarms}${resourceToken}-fn'
     location: location
     skuName: 'S1'
   }
 }
 
 // Create a second app service plan
-module appServicePlan2 './core/db/appServicePlan.bicep' = {
-  name: 'appServicePlan2'
+module appServicePlanWeb './core/db/appServicePlan.bicep' = {
+  name: 'appServicePlanWeb'
   scope: rg
   params: {
-    name: 'plan2'
+    name: '${abbrevs.webServerFarms}${resourceToken}-web'
     location: location
     skuName: 'S1'
   }
@@ -163,21 +160,32 @@ module functionApp './core/web/functionApp.bicep' = {
     functionAppName: '${abbrevs.webSitesFunctions}${resourceToken}'
     // osType: 'Windows'
     runtime: 'dotnet'
-    // roleAssignmentScope: storage //.outputs.storageObjectSymbolic
     storageAccountName: storage.outputs.storageAccountName
-    appServicePlanName: appServicePlan.outputs.appServicePlanName
+    appServicePlanName: appServicePlanFn.outputs.appServicePlanName
     location: location
   }
 }
 
-// Create a web app
-module webApp './core/web/webApp.bicep' = {
-  name: 'webApp'
+// Create a web app - public
+module webAppPublic './core/web/webApp.bicep' = {
+  name: 'webAppPublic'
   scope: rg
   params: {
-    webAppName: '${abbrevs.webSitesAppService}${resourceToken}'
+    webAppName: '${abbrevs.webSitesAppService}${resourceToken}-pub'
     runtime: 'DOTNET|8.0'
-    appServicePlanName: appServicePlan2.outputs.appServicePlanName
+    appServicePlanName: appServicePlanWeb.outputs.appServicePlanName
+    location: location
+  }
+}
+
+// Create a web app - sre
+module webAppSre './core/web/webApp.bicep' = {
+  name: 'webAppSre'
+  scope: rg
+  params: {
+    webAppName: '${abbrevs.webSitesAppService}${resourceToken}-sre'
+    runtime: 'DOTNET|8.0'
+    appServicePlanName: appServicePlanWeb.outputs.appServicePlanName
     location: location
   }
 }
@@ -195,21 +203,34 @@ module aoai './core/ai/aoai.bicep' = {
 
 // resource storageBlobContributorRoleAssignmentFunctionApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
 //   name: guid(functionApp.name, 'Storage Blob Data Contributor') // '${abbrevs.webSitesFunctions}${resourceToken}'
+//   // name: 'role-${abbrevs.webSitesFunctions}${resourceToken}-SBDC-on-${stAcctName}'
 //   // scope: resourceId('Microsoft.Storage/storageAccounts', storageAccountName) // storage
-//   scope: storage.outputs.storageSymbolicName
+//   // scope: storage.outputs.storageSymbolicName
 //   properties: {
 //     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
-//     principalId: functionApp.outputs.functionAppPrincipalId
+//     principalId: functionApp.outputs.principalId
 //     principalType: 'ServicePrincipal'
 //   }
 // }
 
-// resource storageBlobContributorRoleAssignmentWebApp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-//   name: guid(webApp.name, 'Storage Blob Data Contributor') 
-//   scope: storage.outputs.storageSymbolicName
+// resource storageBlobContributorRoleAssignmentWebAppPub 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//   name: guid(webAppPublic.name, 'Storage Blob Data Contributor') 
+//   // name: 'role-${abbrevs.webSitesAppService}${resourceToken}-pub-SBDC-on-${stAcctName}'
+//   // scope: storage.outputs.storageSymbolicName
 //   properties: {
 //     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
-//     principalId: webApp.outputs.webAppPrincipalId
+//     principalId: webAppPublic.outputs.principalId
+//     principalType: 'ServicePrincipal'
+//   }
+// }
+
+// resource storageBlobContributorRoleAssignmentWebAppSre 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//   name: guid(webAppSre.name, 'Storage Blob Data Contributor') 
+//   // name: 'role-${abbrevs.webSitesAppService}${resourceToken}-sre-SBDC-on-${stAcctName}'
+//   // scope: storage.outputs.storageSymbolicName
+//   properties: {
+//     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+//     principalId: webAppSre.outputs.principalId
 //     principalType: 'ServicePrincipal'
 //   }
 // }

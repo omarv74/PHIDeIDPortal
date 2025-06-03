@@ -23,19 +23,23 @@ resource aoai 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   }
 }
 
-resource gpt4oMiniDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
-  name: 'gpt-4o-mini'
-  parent: aoai
-  properties: {
-    model: {
-      format: 'OpenAI'
-      name: 'gpt-4o-mini'
-      version: '2024-07-18'
-    }
-  }
-}
+// resource gpt4oMiniDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
+//   name: 'gpt-4o-mini'
+//   parent: aoai
+//   sku: {
+//     name: 'Standard'
+//     capacity: 100
+//   }
+//   properties: {
+//     model: {
+//       format: 'OpenAI'
+//       name: 'gpt-4o-mini'
+//       version: '2024-07-18'
+//     }
+//   }
+// }
 
 output aoaiName string = aoai.name
 output aoaiId string = aoai.id
-output gpt4oMiniDeploymentName string = gpt4oMiniDeployment.name
-output gpt4oMiniDeploymentId string = gpt4oMiniDeployment.id
+// output gpt4oMiniDeploymentName string = gpt4oMiniDeployment.name
+// output gpt4oMiniDeploymentId string = gpt4oMiniDeployment.id

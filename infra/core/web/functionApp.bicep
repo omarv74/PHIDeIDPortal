@@ -39,6 +39,38 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: runtime
         }
+        {
+          name: 'PII_REDACTION_PROMPT'
+          value: '<Prompt Placeholder>' // ToDo: Replace with actual prompt for PII redaction
+        }
+        {
+          name: 'COSMOS_CONTAINER_NAME'
+          value: '' 
+        }
+        {
+          name: 'COSMOS_DATABASE_NAME'
+          value: ''
+        }
+        {
+          name: 'COSMOS_ENDPOINT_URI'
+          value: ''
+        }
+        {
+          name: 'COSMOS_PARTITION_KEY'
+          value: ''
+        }
+        {
+          name: 'OPENAI_API_KEY'
+          value: ''
+        }
+        {
+          name: 'OPENAI_DEPLOYMENT_NAME'
+          value: ''
+        }
+        {
+          name: 'OPENAI_ENDPOINT'
+          value: ''
+        }
       ]
       use32BitWorkerProcess: true
       linuxFxVersion: ''
@@ -47,6 +79,14 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
   }
   identity: {
     type: 'SystemAssigned'
+  }
+}
+
+resource publishingPolicy 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
+  name: 'scm'
+  parent: functionApp
+  properties: {
+    allow: true
   }
 }
 
@@ -62,4 +102,4 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
 
 output functionAppName string = functionApp.name
 output functionAppId string = functionApp.id
-output functionAppPrincipalId string = functionApp.identity.principalId
+output principalId string = functionApp.identity.principalId
