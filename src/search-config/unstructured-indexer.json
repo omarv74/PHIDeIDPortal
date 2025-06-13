@@ -1,5 +1,4 @@
 {
-  "@odata.etag": "\"0x8DC5FE9FB6A91C3\"",
   "name": "piiredaction-unstructured",
   "description": "PII Redaction Indexer",
   "dataSourceName": "pii-sample-unstructured",
@@ -14,7 +13,6 @@
     "batchSize": null,
     "maxFailedItems": null,
     "maxFailedItemsPerBatch": null,
-    "base64EncodeKeys": null,
     "configuration": {
       "allowSkillsetToReadFileData": false,
       "dataToExtract": "contentAndMetadata",

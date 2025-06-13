@@ -1,7 +1,5 @@
 {
-  "@odata.context": "https://{searchinstance}/$metadata#skillsets/$entity",
-  "@odata.etag": "\"0x8DC5E8612E2CC44\"",
-  "name": "skillset1708719109447",
+  "name": "piiredaction-skillset",
   "description": "",
   "skills": [
     {
